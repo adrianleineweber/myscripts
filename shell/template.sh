@@ -1,25 +1,30 @@
 #!/bin/bash
 
-#################
-# BASIC LOGGER #
-#################
+###########################################################
+# Title: Basic Template for Shell-Scripts with Logging    #
+# Author: Adrian Leineweber / mail@adrian-leineweber.de   #
+# Version: 20181127                                       #
+# License: GPL v3                                         #
+###########################################################
 
-logtofile=1
+#Logging Configuration
+logtofile=1 
+loglevel=4
 
-_loggerLogHostname=false
+_loggerLogHostname=true
 if $_loggerLogHostname;
   then
-    _loggerHostname=$(hostname -f)
+    _loggerHostname="$(hostname -f) "
 fi
 
-_loggerLogBasename=false
+_loggerLogBasename=true
 if $_loggerLogBasename;
   then
-    _loggerBasename=$(basename $0)
+    _loggerBasename="$(basename $0) "
 fi
 
 exec 3>&2 # logging stream (file descriptor 3) defaults to STDERR
-verbosity=2 # default to show warnings
+verbosity=${loglevel:=2}
 loglevel_silent=0
 loglevel_error=1
 loglevel_warn=2
@@ -30,11 +35,11 @@ bold=`tput bold`
 normal=`tput sgr0`
 #date "+%F %T.%3N"
 
-log_notify() { logger $loglevel_silent "$_loggerBasename $_loggerHostname ${bold}NOTIFY:${normal} $1 ($LINENO)"; } 
-log_error() { logger $loglevel_error "$_loggerBasename $_loggerHostname ${bold}ERROR:${normal} $1 ($LINENO)"; }
-log_warn() { logger $loglevel_warn "$_loggerBasename  $_loggerHostname ${bold}WARNING:${normal} $1 ($LINENO)"; }
-log_info() { logger $loglevel_info "$_loggerBasename $_loggerHostname ${bold}INFO:${normal} $1 ($LINENO)"; }
-log_debug() { logger $loglevel_debug "$_loggerBasename $_loggerHostname ${bold}DEBUG:${normal} $1 ($LINENO)"; }
+log_notify() { logger $loglevel_silent "$_loggerBasename$_loggerHostname${bold}NOTIFY:${normal}$1 ($LINENO)"; } 
+log_error() { logger $loglevel_error "$_loggerBasename$_loggerHostname${bold}ERROR:${normal}$1 ($LINENO)"; }
+log_warn() { logger $loglevel_warn "$_loggerBasename$_loggerHostname${bold}WARNING:${normal}$1 ($LINENO)"; }
+log_info() { logger $loglevel_info "$_loggerBasename$_loggerHostname${bold}INFO:${normal}$1 ($LINENO)"; }
+log_debug() { logger $loglevel_debug "$_loggerBasename$_loggerHostname${bold}DEBUG:${normal} $1 ($LINENO)"; }
 
 logger() {
 case "$1" in
@@ -55,13 +60,15 @@ esac
 echo -e "\e[00m"
 }
 
-
-#EXAMPLES
+main() {
+#Logging Examples
 log_notify "notify message"
 log_error "error message"
 log_warn "warning message"
 log_info "info message"
-#log_debug "debug message"
-#log_notify "noch eine notify message"
-#log_debug "noch ein debug"
-#log_notify "wieder notify"
+log_debug "debug message"
+exit 0
+}
+
+main
+exit 1
